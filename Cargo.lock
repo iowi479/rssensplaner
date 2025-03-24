@@ -435,24 +435,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "essensplaner"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "askama",
- "axum",
- "bb8",
- "bb8-postgres",
- "chrono",
- "config",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tokio-postgres",
-]
-
-[[package]]
 name = "fallible-iterator"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1473,6 +1455,24 @@ dependencies = [
  "bitflags",
  "serde",
  "serde_derive",
+]
+
+[[package]]
+name = "rssensplaner"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "askama",
+ "axum",
+ "bb8",
+ "bb8-postgres",
+ "chrono",
+ "config",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-postgres",
 ]
 
 [[package]]
