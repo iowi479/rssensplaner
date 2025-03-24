@@ -1,0 +1,93 @@
+{% extends "_layout.html" %}
+
+{%- block title -%}
+Rezept
+{%- endblock -%}
+
+{%- block content -%}
+
+<div class="container">
+    <div class="my-3">
+        <h1 class="mb-3">Rezepte</h1>
+
+        <div class="row justify-content-between">
+            <div class="col-auto">
+                <input type="text" class="form-control" id="searchInput" placeholder="Suche nach Rezepten..." value="" oninput="on_change_search(event)">
+            </div>
+            <div class="col-auto">
+                <a href="/food/create" class="btn btn-primary">
+                    <i class="bi bi-plus"></i>
+                    Neues Rezept
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="foodsContainer">
+        {% for food in foods %}
+        {{ food|safe }}
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("navbar-list").classList.add("active");
+
+
+    function delete_food(id) {
+        fetch(`/food/delete/${id}`, {
+            method: 'POST',
+        }).then(() => {
+            document.getElementById(`foodCard${id}`).remove();
+        });
+    }
+
+    function on_change_search(event) {
+        filter_foods(event.target.value);
+    }
+
+    function filter_foods(query) {
+        // No search query
+        if (query === "") {
+            const container = document.getElementById("foodsContainer")
+            let children = container.children;
+            children = Array.from(children)
+            children.forEach((child) => {
+                child.style.display = "block";
+            });
+            return;
+        }
+
+        // Search query
+        const container = document.getElementById("foodsContainer")
+        let children = container.children;
+
+        children = Array.from(children)
+        children.forEach((child) => {
+            const name = child.querySelector('.recipeName').innerText;
+            const tags = child.querySelector('.recipeTags').innerText;
+            if (name.toLowerCase().includes(query.toLowerCase()) || tags.toLowerCase().includes(query.toLowerCase())) {
+                child.style.display = "block";
+            } else {
+                child.style.display = "none";
+            }
+        });
+    }
+
+    function sort_foods() {
+        const container = document.getElementById("foodsContainer")
+        let children = container.children;
+
+        children = Array.from(children)
+        children = children.sort((a, b) => {
+            return (a.querySelector('.recipeName').innerText).localeCompare(b.querySelector('.recipeName').innerText);
+        }).forEach((child) => {
+            container.appendChild(child);
+        });
+
+    }
+</script>
+
+
+{%- endblock -%}

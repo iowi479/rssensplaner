@@ -1,0 +1,54 @@
+<!-- This is the template for the item rows in the edit_default_list view -->
+<tr>
+    <td class="dragHandle">
+        <!-- make this bigger and centered -->
+        <i class="bi bi-grip-vertical text-center"></i>
+    </td>
+    <td>
+        {% if let Some(i) = id %}
+        <input type="hidden" name="items[][id]" value="{{i}}">
+        {% endif %}
+
+        <input type="text" name="items[][name]" class="form-control" list="existingItems" required value="{{name}}">
+    </td>
+    <td>
+        <div class="input-group">
+            {% if let Some((q, u)) = amount %}
+            <input type="number" aria-label="Menge" name="items[][quantity]" class="form-control" value="{{q}}">
+            <select class="form-select" name="items[][unit]">
+                <option {% if u=="" %}selected{% endif%}></option>
+                <option {% if u=="Stück" %}selected{% endif %}>Stück</option>
+                <option {% if u=="g" %}selected{% endif %}>g</option>
+                <option {% if u=="kg" %}selected{% endif %}>kg</option>
+                <option {% if u=="Päckchen" %}selected{% endif %}>Päckchen</option>
+                <option {% if u=="Gläser" %}selected{% endif %}>Gläser</option>
+                <option {% if u=="Dosen" %}selected{% endif %}>Dosen</option>
+                <option {% if u=="ml" %}selected{% endif %}>ml</option>
+                <option {% if u=="L" %}selected{% endif %}>L</option>
+                <option {% if u=="TL" %}selected{% endif %}>TL</option>
+                <option {% if u=="EL" %}selected{% endif %}>EL</option>
+            </select>
+            {% else %}
+            <input type="number" aria-label="Menge" name="items[][quantity]" class="form-control">
+            <select class="form-select" name="items[][unit]">
+                <option selected></option>
+                <option>Stück</option>
+                <option>g</option>
+                <option>kg</option>
+                <option>Päckchen</option>
+                <option>Gläser</option>
+                <option>Dosen</option>
+                <option>ml</option>
+                <option>L</option>
+                <option>TL</option>
+                <option>EL</option>
+            </select>
+            {% endif %}
+        </div>
+    </td>
+    <td>
+        <button type="button" onclick="removeItem(this)" class="btn btn-danger">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>

@@ -1,0 +1,51 @@
+<!-- This displays recipe card in the overview -->
+
+{% if let Some(i) = id %}
+<div class="col">
+    <div class="card mb-3" id="foodCard{{i}}">
+        <div class="card-header">
+            <h5 class="card-title recipeName">{{name}}</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text recipeTags">
+                {% for tag in tags %} {{tag}} {% endfor %}
+            </p>
+            <div class="btn-group" role="group">
+                <a href="/calendar?placing={{i}}" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus"></i>
+                    Planen
+                </a>
+                <a href="/food/{{i}}" class="btn btn-secondary">
+                    <i class="bi bi-pencil"></i>
+                    Bearbeiten
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{i}}">
+                    <i class="bi bi-trash"></i>
+                    Löschen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal{{i}}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Rezept löschen?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Das Rezept "{{name}}" wird unwiderruflich gelöscht. Bist du sicher?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                        onclick="delete_food({{i}})">Löschen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}

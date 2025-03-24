@@ -1,0 +1,98 @@
+<div class="col">
+    <form class="dayForm" id="{{date}}" onsubmit="dayFromSubmit(event)">
+        <div class="vstack border border-2 border-secondary">
+            <h5 class="text-center mt-3">{{date.format("%d.%m.%Y").to_string()}}</h5>
+            {% if let Some(di) = id %}
+            <input type="hidden" name="id" value="{{di}}">
+            {% endif %}
+            <input type="hidden" name="date" value="{{date}}">
+
+            <hr>
+
+            <div class="vstack g-2 px-2 foodStack">
+                <h5 class="text-center">Mittagessen</h5>
+
+                {% for food in lunch %}
+                {% if let Some(fi) = food.0.id %}
+                <div class="card dayFood">
+                    <input type="hidden" name="lunch[{{fi}}][id]" value="{{fi}}">
+                    <div class="card-header text-center">
+                        <a href="/food/{{fi}}">{{food.0.name}}</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="hstack">
+                            <div class="input-group">
+
+                                <!-- Input for total portions -->
+                                <input type="number" class="form-control" name="lunch[{{fi}}][totalPortions]"
+                                    onchange="totalPortionsBlur(event)"
+                                    value="{{self::mult_portions(food.0.portions, food.1)}}">
+                                <span class="input-group-text">Portionen</span>
+
+                                <!-- This hidden input comes after the total portions input -->
+                                <!-- That way we can divide the total portions by the portions of the food -->
+                                <input type="hidden" name="lunch[{{fi}}][portions]" value="{{food.0.portions}}">
+
+                                <button class="btn btn-danger" type="button" onclick="removeDayFood(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+                {% endfor %}
+
+                <button class="btn btn-primary placeButton d-none" type="button" onclick="addDayFood(this, 'lunch')">
+                    <i class="bi bi-plus"></i>
+                    Mittagessen hinzufügen
+                </button>
+            </div>
+
+            <hr>
+
+            <div class="vstack g-2 px-2 foodStack mb-2">
+                <h5 class="text-center">Abendessen</h5>
+
+                {% for food in dinner %}
+                {% if let Some(fi) = food.0.id %}
+                <div class="card dayFood">
+                    <input type="hidden" name="dinner[{{fi}}][id]" value="{{fi}}">
+                    <div class="card-header text-center">
+                        <a href="/food/{{fi}}">{{food.0.name}}</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="hstack">
+                            <div class="input-group">
+
+                                <!-- Input for total portions -->
+                                <input type="number" class="form-control" name="dinner[{{fi}}][totalPortions]"
+                                    onchange="totalPortionsBlur(event)"
+                                    value="{{self::mult_portions(food.0.portions, food.1)}}">
+                                <span class="input-group-text">Portionen</span>
+
+                                <!-- This hidden input comes after the total portions input -->
+                                <!-- That way we can divide the total portions by the portions of the food -->
+                                <input type="hidden" name="dinner[{{fi}}][portions]" value="{{food.0.portions}}">
+
+                                <button class="btn btn-danger" type="button" onclick="removeDayFood(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+                {% endfor %}
+
+                <button class="btn btn-primary placeButton d-none" type="button" onclick="addDayFood(this, 'dinner')">
+                    <i class="bi bi-plus"></i>
+                    Abendessen hinzufügen
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

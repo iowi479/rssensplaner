@@ -1,0 +1,56 @@
+<tr>
+    <td>
+        <input type="hidden" name="ingredients[][id]" value={% if let Some(id)=id %} {{id}} {% else %} {{""}} {% endif
+            %}>
+        <input type="text" name="ingredients[][name]" list="existingItems" value="{{name}}" class="form-control"
+            required>
+    </td>
+    <td>
+        {% if let Some((q, u)) = amount %}
+        <div class="input-group">
+            <input type="number" aria-label="Menge" name="ingredients[][quantity]" class="form-control" value="{{q}}">
+            <select class="form-select" name="ingredients[][unit]">
+                <option {% if u=="" %}selected{% endif%}></option>
+                <option {% if u=="Stück" %}selected{% endif %}>Stück</option>
+                <option {% if u=="g" %}selected{% endif %}>g</option>
+                <option {% if u=="kg" %}selected{% endif %}>kg</option>
+                <option {% if u=="Päckchen" %}selected{% endif %}>Päckchen</option>
+                <option {% if u=="Gläser" %}selected{% endif %}>Gläser</option>
+                <option {% if u=="Dosen" %}selected{% endif %}>Dosen</option>
+                <option {% if u=="ml" %}selected{% endif %}>ml</option>
+                <option {% if u=="L" %}selected{% endif %}>L</option>
+                <option {% if u=="TL" %}selected{% endif %}>TL</option>
+                <option {% if u=="EL" %}selected{% endif %}>EL</option>
+            </select>
+        </div>
+        {% else %}
+        <div class="input-group">
+            <input type="number" name="ingredients[][quantity]" class="form-control">
+            <select class="form-select" name="ingredients[][unit]">
+                <option selected></option>
+                <option>Stück</option>
+                <option>g</option>
+                <option>kg</option>
+                <option>Päckchen</option>
+                <option>Gläser</option>
+                <option>Dosen</option>
+                <option>ml</option>
+                <option>L</option>
+                <option>TL</option>
+                <option>EL</option>
+            </select>
+        </div>
+
+        {% endif %}
+
+    </td>
+    <td>
+        <input class="form-check-input" type="checkbox" value="" name="ingredients[][optional]" {% if optional %}
+            checked {% endif %}>
+    </td>
+    <td>
+        <button type="button" onclick="removeIngredient(this)" class="btn btn-danger">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>

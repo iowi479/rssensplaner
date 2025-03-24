@@ -1,0 +1,118 @@
+{% extends "_layout.html" %}
+
+{%- block title -%}
+Einkauf
+{%- endblock -%}
+
+{%- block content -%}
+<div class="container">
+    <h1>Einkauf</h1>
+
+    <a href="/shopping/defaults" class="btn btn-primary">
+        <i class="bi bi-pencil"></i>
+        Standard Einkauf bearbeiten
+    </a>
+
+    <hr>
+    <h1 class="mb-2">Einkauf Planen</h1>
+
+    <form class="form-floating" id="shoppingForm">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" checked name="default" id="checkDefaultShopping">
+            <label class="form-check-label" for="checkDefaultShopping">
+                Standard Einkauf
+            </label>
+        </div>
+
+        <input type="hidden" class="form-control" id="dateInput" value="{{default_date}}" name="date">
+        <div id="calendar" class="mb-2">
+            <div class="row">
+                <div class="col">
+                    <h5>Montag</h5>
+                </div>
+                <div class="col">
+                    <h5>Dienstag</h5>
+                </div>
+                <div class="col">
+                    <h5>Mittwoch</h5>
+                </div>
+                <div class="col">
+                    <h5>Donnerstag</h5>
+                </div>
+                <div class="col">
+                    <h5>Freitag</h5>
+                </div>
+                <div class="col">
+                    <h5>Samstag</h5>
+                </div>
+                <div class="col">
+                    <h5>Sonntag</h5>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                {% for day in current_week %}
+                <div class="col">
+                    <button type="button" class="btn weekday btn-outline-secondary" id="{{day}}"
+                        onclick="setSelectedDate(this)">{{day}}</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row mb-2">
+                {% for day in next_week %}
+                <div class="col">
+                    <button type="button" class="btn weekday btn-outline-secondary" id="{{day}}"
+                        onclick="setSelectedDate(this)">{{day}}</button>
+                </div>
+                {% endfor %}
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">
+                Einkaufsliste erstellen
+            </button>
+    </form>
+</div>
+
+
+
+<script>
+    let selected_day = document.getElementById("{{default_date}}");
+    selected_day.classList.remove("btn-outline-secondary");
+    selected_day.classList.add("btn-secondary");
+
+    function setSelectedDate(button) {
+        let id = button.id;
+
+        let calendar = document.getElementById("calendar");
+        calendar.querySelectorAll("button.weekday").forEach((button) => {
+            button.classList.remove("btn-secondary");
+            button.classList.add("btn-outline-secondary");
+        });
+
+        button.classList.remove("btn-outline-secondary");
+        button.classList.add("btn-secondary");
+
+        document.getElementById("dateInput").value = id;
+    }
+
+
+    document.getElementById("shoppingForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const jsonData = {default: false, until: ""};
+
+        formData.forEach((value, key) => {
+            if (key.includes("default")) {
+                jsonData.default = true;
+            } else if (key.includes("date")) {
+                jsonData.until = value;
+            }
+        });
+
+        console.log(jsonData);
+        window.location.href = `/shopping/list?default=${jsonData.default}&date=${jsonData.until}`;
+    });
+</script>
+{%- endblock -%}

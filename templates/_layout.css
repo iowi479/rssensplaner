@@ -1,0 +1,16 @@
+{#-
+    This file is included by "_layout.html".
+-#}
+
+:root {
+  --bs-body-bg: var(--bs-gray-100);
+}
+
+.dragHandle {
+    cursor: grab; /* Shows grab cursor */
+}
+
+.dragHandle:active {
+    cursor: grabbing; /* Shows grabbing cursor when dragging */
+}
+

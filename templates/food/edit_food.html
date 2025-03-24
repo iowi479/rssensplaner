@@ -1,0 +1,242 @@
+{% extends "_layout.html" %}
+
+{%- block title -%}
+Update {{name}}
+{%- endblock -%}
+
+{%- block content -%}
+
+
+<div class="container">
+<form id="recipeForm">
+    <input type="hidden" class="form-control" id="idInput" name="id" value="{% if let Some(i) = id %} {{i}} {% endif %}" readonly>
+
+    <div class="form-floating mb-3 mt-3">
+        <input type="text" class="form-control" id="nameInput" name="name" value="{{name}}" required>
+        <label for="nameInput">Rezeptname</label>
+    </div>
+
+    <div class="row">
+        <div class="col-10">
+
+            <datalist id="existingTags">
+                {% for tag in existing_tags %}
+                    <option value="{{ tag }}">
+                {% endfor %}
+            </datalist>
+
+            <div class="row gy-2 gx-3 align-items-center" id="tags">
+                <!-- When updating this, the copy of this <div> should also be updated in `add` handler -->
+                {% for tag in tags %}
+                <div class="col-auto">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="tags" list="existingTags" value={{tag}}>
+                        <button class="btn btn-outline-danger" type="button" onclick="removeTag(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-secundary" onclick="addTag()">
+                    <i class="bi bi-plus"></i>
+                    Tag hinzufügen
+                </button>
+            </div>
+
+        </div>
+        <div class="col-2">
+
+            <div class="input-group mb-3">
+                    <input type="number" class="form-control" placeholder="1" name="portions"  value="{{portions}}">
+                <span class="input-group-text">Portionen</span>
+            </div>
+
+        </div>
+    </div>
+
+    <datalist id="existingItems">
+        {% for item in existing_items %}
+            <option value="{{ item }}">
+        {% endfor %}
+    </datalist>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Menge</th>
+                <th scope="col">Optional</th>
+                <th scope="col">Löschen</th>
+            </tr>
+        </thead>
+        <tbody id="ingredientsBody">
+            {% for edit_ingredient in edit_ingredients %}
+            {{ edit_ingredient|safe }}
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="row" colspan="4">
+                    <button type="button" class="btn btn-secundary" onclick="addIngredient()">
+                        <i class="bi bi-plus"></i>
+                        Zutat hinzufügen
+                    </button>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+
+
+    <div class="form-floating mb-3 grow-wrap">
+        <textarea class="form-control" id="recipeDetails" name="details" style="height: 500px">{{details}}</textarea>
+        <label for="recipeDetails">Rezept</label>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Speichern & zurück</button>
+    </div>
+</form>
+</div>
+
+
+
+<script>
+    // Allow usage of TAB in the textarea
+    document.getElementById("recipeDetails").addEventListener("keydown", function(e) {
+        if (e.key === "Tab") {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
+
+    function addIngredient() {
+        const tbody = document.getElementById("ingredientsBody");
+        const new_row = document.createElement("tr");
+        const content = `
+    <td>
+        <input type="hidden" name="ingredients[][id]">
+        <input type="text" name="ingredients[][name]" list="existingItems""
+            class="form-control" required>
+    </td>
+    <td>
+        <div class="input-group">
+            <input type="number" name="ingredients[][quantity]" class="form-control">
+            <select class="form-select" name="ingredients[][unit]">
+                <option selected></option>
+                <option>Stück</option>
+                <option>g</option>
+                <option>kg</option>
+                <option>Päckchen</option>
+                <option>Gläser</option>
+                <option>Dosen</option>
+                <option>ml</option>
+                <option>L</option>
+                <option>TL</option>
+                <option>EL</option>
+            </select>
+        </div>
+    </td>
+    <td>
+        <input class="form-check-input" type="checkbox" value="" name="ingredients[][optional]">
+    </td>
+    <td>
+        <button type="button" onclick="removeIngredient(this)" class="btn btn-danger">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+            `;
+        new_row.innerHTML = content;
+        tbody.appendChild(new_row);
+    }
+
+    function addTag() {
+        const tags = document.getElementById("tags");
+        const new_tag = document.createElement("div");
+        new_tag.classList.add("col-auto");
+        // When updating this, the copy of this <div> should also be updated in the form.
+        // The value is emptied here, because we create a new Tag.
+
+        const content = `
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="tags" >
+                    <button class="btn btn-outline-danger" type="button" onclick="removeTag(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+        new_tag.innerHTML = content;
+
+        tags.appendChild(new_tag);
+    }
+
+    function removeIngredient(button) {
+        button.closest("tr").remove();
+    }
+
+    function removeTag(button) {
+        button.closest("div").remove();
+    }
+
+
+
+    document.getElementById("recipeForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const jsonData = {details: "", tags: [], ingredients: []};
+
+        // map formData to JSON
+        // This handles all rows in the table and creates the corresponding json objects
+        formData.forEach((value, key) => {
+            console.log(key, value);
+            if (key.includes("tags")) {
+                jsonData.tags.push(value);
+            } else if (key.includes("ingredients")) {
+                const index = jsonData.ingredients.length - 1;
+
+                if (key.includes("[id]")) {
+                    const id = parseInt(value);
+                    if (id) jsonData.ingredients.push({ id: id, name: value, amount:["",""], optional: false });
+                    else jsonData.ingredients.push({ name: value, amount:["",""], optional: false });
+                } else if (key.includes("[name]")){
+                        jsonData.ingredients[index].name = value;
+                } else if (key.includes("[quantity]")) {
+                    const val = parseInt(value);
+                    if (!val) jsonData.ingredients[index].amount = null;
+                    else jsonData.ingredients[index].amount[0] = val;
+                } else if (key.includes("[unit]")) {
+                    if (jsonData.ingredients[index].amount !== null) {
+                        jsonData.ingredients[index].amount[1] = value;
+                    }
+                } else if (key.includes("[optional]")) jsonData.ingredients[index].optional = true;
+            } else if (key === "portions" || key === "id") {
+                jsonData[key] = parseInt(value);
+            } else {
+                jsonData[key] = value;
+            }
+        });
+
+        fetch("/food/update", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(jsonData),
+        }).then((response) => {
+            if (response.ok) {
+                window.location.href = "/list";
+            } else {
+                alert("Fehler beim Speichern");
+                console.error(response);
+            }
+        });
+    });
+</script>
+
+
+
+{%- endblock -%}

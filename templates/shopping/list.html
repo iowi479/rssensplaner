@@ -1,0 +1,106 @@
+{% extends "_layout.html" %}
+
+{%- block title -%}
+Einkaufsliste
+{%- endblock -%}
+
+{%- block content -%}
+<div class="container">
+    <h1>Einkaufsliste</h1>
+
+
+    <form id="shoppingCartForm">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Menge</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="items[{{ loop.index0 }}][id]" checked>
+                    </td>
+                    <input type="hidden" name="items[{{ loop.index0 }}][name]" value="{{ item.name }}">
+                    <td>{{ item.name }}</td>
+
+                    {% if let Some(a) = item.amount %}
+                    <input type="hidden" name="items[{{ loop.index0 }}][amount]" value="{{a}}">
+                    {% endif %}
+                    <td>
+                        {% if let Some(a) = item.amount %}
+                        {{a}}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-floating mb-2">
+            <select class="form-select" id="floatingSelect" name="listId">
+                {% for list in lists %}
+                <option value="{{ list.0 }}">{{ list.1 }}</option>
+                {% endfor %}
+            </select>
+            <label for="floatingSelect">Bring! Einkaufsliste</label>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            Einkaufsliste in Bring! laden
+        </button>
+    </form>
+</div>
+
+
+
+<script>
+    document.getElementById("shoppingCartForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const jsonData = {list_id: null, items: []};
+
+        formData.forEach((value, key) => {
+            console.log(key, value);
+
+            if (key === "listId") {
+                jsonData.list_id = value;
+                return;
+            }
+
+            let index = parseInt(key.split("[")[1].split("]")[0]);
+            if (key.includes("id")) {
+                jsonData.items.push({id: index, name: null, amount: null});
+            } else if (key.includes("name")) {
+                if (jsonData.items.length > 0 && jsonData.items[jsonData.items.length - 1].id == index) {
+                    jsonData.items[jsonData.items.length - 1].name = value;
+                }
+            } else if (key.includes("amount")) {
+                if (jsonData.items.length > 0 && jsonData.items[jsonData.items.length - 1].id == index) {
+                    jsonData.items[jsonData.items.length - 1].amount = value;
+                }
+            }
+        });
+
+        console.log(jsonData);
+        fetch("/shopping/bring", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(jsonData),
+        }).then((response) => {
+            if (response.ok) {
+                window.location.href = "/calendar";
+            } else {
+                alert("Fehler beim Hinzufügen");
+                console.error(response);
+            }
+        });
+    });
+
+</script>
+{%- endblock -%}
