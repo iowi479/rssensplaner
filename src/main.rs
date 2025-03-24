@@ -1,6 +1,4 @@
 use anyhow::Result;
-use config::{Config, File, FileFormat};
-use server_config::ServerConfig;
 
 pub mod bring;
 pub mod calendar;
@@ -13,11 +11,7 @@ pub mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Load the configuration file
-    let config: ServerConfig = Config::builder()
-        .add_source(File::new("config.toml", FileFormat::Toml))
-        .build()?
-        .try_deserialize()?;
+    let config = server_config::load_config()?;
 
     // Initialize and run the server
     let listener = tokio::net::TcpListener::bind(config.server.get_addr()).await?;
